@@ -2,15 +2,7 @@ import type { ReactNode } from "react"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-
-function SignOutButton() {
-  "use client"
-  import { signOut } from "next-auth/react"
-  return (
-    <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/" })} className="cursor-pointer">Sign out</Button>
-  )
-}
+import { SignOutButton } from "@/components/sign-out-button"
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await getServerSession(authOptions)
