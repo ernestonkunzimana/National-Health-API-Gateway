@@ -12,6 +12,8 @@ export async function POST(req: Request) {
     }
 
     // Ensure tables exist (idempotent)
+    await query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`)
+
     await query(`
       CREATE TABLE IF NOT EXISTS organizations (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
