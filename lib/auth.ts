@@ -16,6 +16,7 @@ export interface User {
 }
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "dev-secret",
   providers: [
     CredentialsProvider({
       name: "credentials",
