@@ -7,9 +7,27 @@ import Link from "next/link"
 
 export default function SignUpPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", organizationName: "", role: "provider" })
+  const [form, setForm] = useState({ nationalId: "", firstName: "", lastName: "", email: "", password: "", organizationName: "", role: "provider" })
   const [loading, setLoading] = useState(false)
+  const [lookupLoading, setLookupLoading] = useState(false)
   const [error, setError] = useState("")
+
+  async function lookupNationalId(id: string) {
+    if (!id) return
+    setLookupLoading(true)
+    try {
+      const res = await fetch("/api/identity/lookup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nationalId: id }) })
+      if (res.ok) {
+        const data = await res.json()
+        const d = data.data || {}
+        setForm((f) => ({ ...f, firstName: d.firstName || f.firstName, lastName: d.lastName || f.lastName, email: d.email || f.email }))
+      }
+    } catch (err) {
+      // ignore lookup errors - user can fill manually
+    } finally {
+      setLookupLoading(false)
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,6 +48,11 @@ export default function SignUpPage() {
       <form onSubmit={onSubmit} className="w-full max-w-md space-y-4 border rounded-lg p-6 bg-background">
         <h1 className="text-2xl font-semibold">Create account</h1>
         {error && <p className="text-sm text-red-600">{error}</p>}
+        <div className="space-y-2">
+          <label htmlFor="nationalId" className="text-sm font-medium">National ID</label>
+          <input id="nationalId" className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} onBlur={(e) => lookupNationalId(e.target.value)} required />
+          {lookupLoading && <p className="text-xs text-muted-foreground">Looking up national registry...</p>}
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label htmlFor="firstName" className="text-sm font-medium">First name</label>
