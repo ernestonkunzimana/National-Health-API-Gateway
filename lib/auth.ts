@@ -28,12 +28,29 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // If DATABASE_URL is not set (local development), allow a simple dev login with the default password
+        if (!process.env.DATABASE_URL) {
+          if (credentials.password === "admin123") {
+            return {
+              id: "local-dev-user",
+              email: credentials.email,
+              firstName: "Dev",
+              lastName: "User",
+              role: "admin",
+              organizationId: undefined,
+              organizationName: undefined,
+              organizationType: undefined,
+            }
+          }
+          return null
+        }
+
         try {
           // Get user with organization details
           const result = await query(
             `
-            SELECT 
-              u.id, u.email, u.password_hash, u.first_name, u.last_name, 
+            SELECT
+              u.id, u.email, u.password_hash, u.first_name, u.last_name,
               u.role, u.organization_id, u.is_active,
               o.name as organization_name, o.type as organization_type
             FROM users u
