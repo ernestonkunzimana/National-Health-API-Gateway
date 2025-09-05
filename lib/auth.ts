@@ -124,6 +124,8 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  // Enable debug logs in development to aid troubleshooting
+  debug: process.env.NODE_ENV !== "production",
 }
 
 // Role-based access control
