@@ -11,6 +11,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    // If DATABASE_URL is not configured (development), skip DB operations and return a success response
+    if (!process.env.DATABASE_URL) {
+      console.warn("[signup] DATABASE_URL not set - skipping database operations in development mode")
+      return NextResponse.json({ ok: true, warning: "No DATABASE_URL configured; signup simulated in development" })
+    }
+
     // Ensure tables exist (idempotent)
     await query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`)
 
@@ -60,6 +66,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
   } catch (err: any) {
     console.error("[signup] error", err)
-    return NextResponse.json({ error: "Signup failed" }, { status: 500 })
+    return NextResponse.json({ error: err?.message || "Signup failed" }, { status: 500 })
   }
 }
